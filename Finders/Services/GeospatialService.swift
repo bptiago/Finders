@@ -10,7 +10,7 @@ import Foundation
 import CoreLocation
 import MapKit
 
-class MapKitService {
+class GeospatialService {
     
     private let KILOMETERS_PER_DEGREE: Double = 111.111
     private let SEARCH_RADIUS: Double = 5 // km
@@ -36,7 +36,7 @@ class MapKitService {
                 points.append(nextPoint)
             }
         }
-                
+        
         return points
     }
     
@@ -66,54 +66,23 @@ class MapKitService {
         }
     }
     
-    // Check if phone is aimed towards a point
-    // Need to find the angle between two points:
-    // Draw points by coordinate
-    // 
-    
-    func test(center: CLLocationCoordinate2D) {
-        let points = getGeographicalPoints(center: center)
+    // Bearing Formula
+    // https://www.movable-type.co.uk/scripts/latlong.html
+    func calculateBearing(from point1: CLLocationCoordinate2D, to point2: CLLocationCoordinate2D) -> Double {
+        let lat1 = Math.toRadians(point1.latitude)
+        let long1 = Math.toRadians(point1.longitude)
         
-        do {
-            points.forEach { i in
-                Task {
-                    let result = try await reverseGeocodePoint(point: i)
-                    print(result.subLocality ?? "")
-                }
-            }
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func getAddressFromPOI(POI: CLPlacemark) {
-        let neighborhood = POI.subLocality
-        print(neighborhood ?? "no")
-    }
-    
-    func searchPOIs(center: CLLocationCoordinate2D) {
-        let region = MKCoordinateRegion(
-            center: center,
-            latitudinalMeters: 5000,
-            longitudinalMeters: 5000
-        )
+        let lat2 = Math.toRadians(point2.latitude)
+        let long2 = Math.toRadians(point2.longitude)
         
-        let request = MKLocalSearch.Request(naturalLanguageQuery: "Restaurants", region: region)
+        let delta = long2 - long1
+        let y = sin(delta) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(delta)
+        let bearing = atan2(y, x)
         
-//        request.pointOfInterestFilter = .init(including: [.airport, .hospital, .museum, .restaurant, .university])
-        
-        let search = MKLocalSearch(request: request)
-        search.start { response, error in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            
-            response?.mapItems.forEach { item in
-                print(item.url ?? "No URL")
-                print(item.name ?? "No Name")
-            }
-        }
+        // Convert bearing from rad to degrees
+        let result = (Math.toDegrees(bearing) + 360).truncatingRemainder(dividingBy: 360)
+        return result
     }
     
 }

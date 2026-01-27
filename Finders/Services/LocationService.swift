@@ -19,6 +19,7 @@ class LocationService: NSObject, CLLocationManagerDelegate, ObservableObject {
     override init() {
         super.init()
         manager.delegate = self
+        manager.headingFilter = 5.0 // heading update trigger
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -43,6 +44,7 @@ class LocationService: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        // Set up tolerance for updating header
         heading = newHeading
     }
     

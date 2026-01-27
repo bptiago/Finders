@@ -14,7 +14,7 @@ struct Test: View {
     @State var points: [CLLocationCoordinate2D] = []
 
     let l = LocationService()
-    let m = MapKitService()
+    let m = GeospatialService()
     
     var body: some View {
         Map(position: $camera) {
@@ -31,6 +31,8 @@ struct Test: View {
                 
                 let points = m.getGeographicalPoints(center: location.coordinate)
                 self.points = points
+                
+                m.test(center: location.coordinate)
             }
         })
     }
