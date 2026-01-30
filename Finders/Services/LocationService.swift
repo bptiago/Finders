@@ -12,7 +12,6 @@ import CoreLocation
 class LocationService: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let manager = CLLocationManager()
     
-    @Published var isAuthorized: Bool = false
     @Published var location: CLLocation?
     @Published var heading: CLHeading?
     
@@ -25,21 +24,13 @@ class LocationService: NSObject, CLLocationManagerDelegate, ObservableObject {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
-            isAuthorized = true
             manager.requestLocation()
             manager.startUpdatingHeading()
             break
             
-        case .denied, .restricted:
-            isAuthorized = false
-            break
-            
-        case .notDetermined:
-            isAuthorized = false
-            break
-            
         default:
-            fatalError("Unknown authorization status: \(manager.authorizationStatus)")
+            NSLog("Location permission not granted, status: \(manager.authorizationStatus)")
+            break
         }
     }
     

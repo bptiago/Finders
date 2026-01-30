@@ -32,7 +32,7 @@ struct Test: View {
                 let points = m.getGeographicalPoints(center: location.coordinate)
                 self.points = points
                 
-                m.test(center: location.coordinate)
+//                m.test(center: location.coordinate)
             }
         })
     }

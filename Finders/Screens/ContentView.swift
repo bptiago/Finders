@@ -10,15 +10,27 @@
 import SwiftUI
 import CoreLocation
 
-struct ContentView: View { 
+struct ContentView: View {
+    
+    @StateObject private var coordinator = Coordinator()
+    @StateObject private var permissionManager = LocationPermissionManager()
+    
+    private var rootPage: Page {
+        return permissionManager.isAuthorized ? .home : .permission
+    }
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack(path: $coordinator.path) {
+            coordinator.build(page: rootPage)
+                .navigationDestination(for: Page.self) { page in
+                    coordinator.build(page: page)
+                }
+//                .sheet(item: $coordinator.sheet) { sheet in
+//                    coordinator.build(sheet: sheet)
+//                }
         }
-        .padding()
+        .environmentObject(permissionManager)
+        .environmentObject(coordinator)
     }
 }
 
